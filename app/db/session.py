@@ -1,14 +1,16 @@
+from collections.abc import Iterator
+
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session, sessionmaker
 
-from app.core.config import get_settings
+from app.core.config import settings
 
-settings = get_settings()
-engine = create_engine(settings.DATABASE_URL)
+
+engine = create_engine(settings.database_url)
 SessionLocal = sessionmaker(bind=engine, expire_on_commit=False)
 
 
-def get_db():
+def get_db() -> Iterator[Session]:
     """Создаёт сессию БД на время запроса и закрывает её после"""
     db = SessionLocal()
     try:

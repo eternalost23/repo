@@ -9,3 +9,6 @@ wheels/
 # Virtual environments
 .venv
 .env
+
+# Фронтенд живёт в отдельном репозитории
+todo-app-frontend/

@@ -1,8 +1,9 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class TaskSchema(BaseModel):
     """Схема задачи для ответа"""
+
     model_config = ConfigDict(from_attributes=True)
 
     id: str
@@ -11,25 +12,9 @@ class TaskSchema(BaseModel):
 
 
 class TaskCreateSchema(BaseModel):
-    title: str
+    title: str = Field(min_length=1, max_length=255)
 
 
 class TaskUpdateSchema(BaseModel):
-    title: str | None = None
+    title: str | None = Field(default=None, min_length=1, max_length=255)
     completed: bool | None = None
-
-
-class CategorySchema(BaseModel):
-    """Схема категории для ответа"""
-    model_config = ConfigDict(from_attributes=True)
-
-    id: str
-    name: str
-
-
-class CategoryCreateSchema(BaseModel):
-    name: str
-
-
-class CategoryUpdateSchema(BaseModel):
-    name: str | None = None
