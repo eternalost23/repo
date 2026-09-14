@@ -1,21 +1,18 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, status
 
-from app.api.dependencies import get_task_service
+from app.api.dependencies import TaskServiceDep
 from app.schemas.task import TaskCreateSchema, TaskSchema, TaskUpdateSchema
-from app.services.task import TaskService
 
 router = APIRouter(prefix="/tasks")
 
 
 @router.get("", response_model=list[TaskSchema])
-def get_tasks(task_service: TaskService = Depends(get_task_service)):
+def get_tasks(task_service: TaskServiceDep):
     return task_service.list_tasks()
 
 
 @router.post("", response_model=TaskSchema, status_code=status.HTTP_201_CREATED)
-def create_task(
-    payload: TaskCreateSchema, task_service: TaskService = Depends(get_task_service)
-):
+def create_task(payload: TaskCreateSchema, task_service: TaskServiceDep):
     return task_service.create_task(task_create=payload)
 
 
@@ -23,13 +20,11 @@ def create_task(
 def update_task(
     task_id: str,
     payload: TaskUpdateSchema,
-    task_service: TaskService = Depends(get_task_service),
+    task_service: TaskServiceDep,
 ):
     return task_service.update_task(task_id=task_id, task_update=payload)
 
 
 @router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_task(
-    task_id: str, task_service: TaskService = Depends(get_task_service)
-) -> None:
+def delete_task(task_id: str, task_service: TaskServiceDep) -> None:
     task_service.delete_task(task_id)

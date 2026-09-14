@@ -18,12 +18,11 @@ dependencies = [
 # Под какую версию Python проверять синтаксис и правила
 target-version = "py314"
 # Максимальная длина строки
-line-length = 88
+line-length = 100
 exclude = ["alembic"]
 
 [tool.ruff.lint]
-# Какие группы правил включены: E - pycodestyle, F - pyflakes, I - сортировка импортов
-select = ["E", "F", "I"]
+select = ["E", "F", "I", "UP", "B", "SIM"]
 
 [tool.ruff.format]
 # Использовать двойные кавычки
