@@ -1,4 +1,3 @@
-from contextlib import asynccontextmanager
 import logging
 from time import perf_counter
 
@@ -10,8 +9,6 @@ from app.api.routers.categories import router as category_router
 from app.api.routers.task import router as task_router
 from app.core.config import settings
 from app.core.exceptions import NotFoundError
-from app.db.session import engine
-from app.models.base import Base
 from app.core.logging import configure_logging
 
 configure_logging()

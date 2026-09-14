@@ -4,7 +4,6 @@ from app.api.dependencies import get_task_service
 from app.schemas.task import TaskCreateSchema, TaskSchema, TaskUpdateSchema
 from app.services.task import TaskService
 
-
 router = APIRouter(prefix="/tasks")
 
 

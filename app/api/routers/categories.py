@@ -8,7 +8,6 @@ from app.schemas.categories import (
 )
 from app.services.categories import CategoryService
 
-
 router = APIRouter(prefix="/categories")
 
 
