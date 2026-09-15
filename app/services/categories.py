@@ -33,9 +33,7 @@ class CategoryService:
         self, category_id: str, category_update: CategoryUpdateSchema
     ) -> CategoryORM:
         category_for_update = self._get_or_raise(category_id)
-        self.category_repo.update(
-            category=category_for_update, name=category_update.name
-        )
+        self.category_repo.update(category=category_for_update, name=category_update.name)
         self.db.commit()
         return category_for_update
 

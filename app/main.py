@@ -28,9 +28,7 @@ app.add_middleware(
 request_count: int = 0
 
 
-@app.middleware(
-    "http"
-)  # log_requests выполнится до и после обработки каждого HTTP-запроса
+@app.middleware("http")  # log_requests выполнится до и после обработки каждого HTTP-запроса
 async def log_requests(request: Request, call_next) -> Response:
     started_at = perf_counter()
     try:
