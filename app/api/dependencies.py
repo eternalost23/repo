@@ -4,6 +4,7 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
+from app.repositories.task import TaskRepository
 from app.services.categories import CategoryService
 from app.services.task import TaskService
 
@@ -11,7 +12,7 @@ DbSession = Annotated[Session, Depends(get_db)]
 
 
 def get_task_service(db: DbSession) -> TaskService:
-    return TaskService(db)
+    return TaskService(db, TaskRepository(db))
 
 
 def get_category_service(db: DbSession) -> CategoryService:

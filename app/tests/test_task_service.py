@@ -1,0 +1,105 @@
+from unittest.mock import Mock
+
+import pytest
+from pydantic import ValidationError
+
+from app.models.task import TaskORM
+from app.schemas.task import TaskCreateSchema, TaskSchema, TaskUpdateSchema
+from app.services.task import TaskNotFound, TaskService
+
+
+def test_list_tasks_returns_pydantic_models(
+    service: TaskService,
+    repository_mock: Mock,
+) -> None:
+    # Имитируем, что метод get_all репозитория вернет эти задачи
+    repository_mock.get_all.return_value = [
+        TaskORM(id="task-1", title="Изучить pytest", completed=False),
+        TaskORM(id="task-2", title="Написать первый тест", completed=True),
+    ]
+
+    result = service.list_tasks()
+
+    assert result == [
+        TaskSchema(id="task-1", title="Изучить pytest", completed=False),
+        TaskSchema(id="task-2", title="Написать первый тест", completed=True),
+    ]
+
+
+def test_create_task_commits_created_task(
+    service: TaskService,
+    db_mock: Mock,
+    repository_mock: Mock,
+) -> None:
+    created_task = TaskORM(id="task-1", title="Новая задача", completed=False)
+    repository_mock.create.return_value = created_task
+
+    result = service.create_task(TaskCreateSchema(title="Новая задача"))
+    repository_mock.create.assert_called_once_with(title="Новая задача")
+    db_mock.commit.assert_called_once_with()
+    assert result.model_dump() == {
+        "id": "task-1",
+        "title": "Новая задача",
+        "completed": False,
+    }
+
+
+def test_update_task_raises_when_not_found(
+    service: TaskService,
+    repository_mock: Mock,
+) -> None:
+    repository_mock.get_by_id.return_value = None
+
+    with pytest.raises(TaskNotFound):
+        service.update_task(task_id="-999", task_update=TaskUpdateSchema())
+
+
+def test_update_task_success(
+    service: TaskService,
+    db_mock: Mock,
+    repository_mock: Mock,
+) -> None:
+    existing_task = TaskORM(id="task-1", title="Старая задача", completed=False)
+    repository_mock.get_by_id.return_value = existing_task
+
+    result = service.update_task(
+        task_id="task-1",
+        task_update=TaskUpdateSchema(title="Новая задача", completed=True),
+    )
+
+    repository_mock.update.assert_called_once_with(
+        task=existing_task,
+        title="Новая задача",
+        completed=True,
+    )
+    db_mock.commit.assert_called_once()
+    assert isinstance(result, TaskSchema)
+
+
+@pytest.mark.parametrize(
+    "bad_title",
+    [
+        "   ",
+        "",
+        "а" * 256,
+    ],
+)
+def test_update_schema_rejects_invalid_title(bad_title: str) -> None:
+    with pytest.raises(ValidationError):
+        TaskUpdateSchema(title=bad_title)
+
+
+@pytest.mark.parametrize(
+    "raw_title, expected_title",
+    [
+        ("  задача  ", "задача"),
+        ("задача", "задача"),
+        ("а" * 255, "а" * 255),
+    ],
+)
+def test_update_schema_accepts_and_strips_title(
+    raw_title: str,
+    expected_title: str,
+) -> None:
+    schema = TaskUpdateSchema(title=raw_title)
+    assert schema.title == expected_title

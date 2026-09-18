@@ -1,4 +1,6 @@
-from pydantic import BaseModel, ConfigDict, Field
+from typing import Annotated
+
+from pydantic import BaseModel, ConfigDict, StringConstraints
 
 
 class TaskSchema(BaseModel):
@@ -12,9 +14,11 @@ class TaskSchema(BaseModel):
 
 
 class TaskCreateSchema(BaseModel):
-    title: str = Field(min_length=1, max_length=255)
+    title: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=255)]
 
 
 class TaskUpdateSchema(BaseModel):
-    title: str | None = Field(default=None, min_length=1, max_length=255)
+    title: Annotated[
+        str | None, StringConstraints(strip_whitespace=True, min_length=1, max_length=255)
+    ] = None
     completed: bool | None = None
